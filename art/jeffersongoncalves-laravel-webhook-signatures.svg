@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A0A0B"/>
+      <stop offset="1" stop-color="#18181B"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop stop-color="#FBBF24" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#FBBF24" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" fill="none" stroke="#27272A" stroke-width="0.6" stroke-opacity="0.6"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.4"/>
+  <ellipse cx="950" cy="310" rx="410" ry="290" fill="url(#glow)"/>
+
+  <!-- Top label -->
+  <circle cx="82" cy="66" r="4" fill="#FBBF24"/>
+  <text x="100" y="71" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="500" letter-spacing="2" fill="#A1A1AA">LARAVEL PACKAGE</text>
+
+  <!-- Title -->
+  <text x="80" y="270" font-family="Inter, system-ui, sans-serif" font-size="64" font-weight="800" letter-spacing="-2" fill="#FAFAFA">Webhook</text>
+  <text x="80" y="338" font-family="Inter, system-ui, sans-serif" font-size="64" font-weight="800" letter-spacing="-2" fill="#FAFAFA">Signatures</text>
+
+  <!-- Tagline -->
+  <text x="80" y="394" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="600" fill="#FBBF24">Verify webhook signatures, fail-closed</text>
+
+  <!-- Description -->
+  <text x="80" y="436" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="400" fill="#A1A1AA">Mailgun, SendGrid, Postmark, Resend, AWS SNS/SES</text>
+  <text x="80" y="462" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="400" fill="#A1A1AA">and GitHub — constant-time, anti-replay checks.</text>
+
+  <!-- Right visual: signature verification card -->
+  <rect x="680" y="148" width="440" height="362" rx="16" fill="#18181B" stroke="#3F3F46"/>
+  <text x="712" y="190" font-family="ui-monospace, monospace" font-size="13" font-weight="500" letter-spacing="1.5" fill="#71717A">SIGNATURE VERIFICATION</text>
+  <line x1="712" y1="206" x2="1088" y2="206" stroke="#27272A" stroke-width="1"/>
+
+  <!-- rows -->
+  <g font-family="Inter, system-ui, sans-serif" font-size="17" font-weight="500" fill="#FAFAFA">
+    <text x="712" y="245">Mailgun</text>
+    <path d="M1066 240 l5 5 l10 -12" stroke="#10B981" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <text x="712" y="283">SendGrid</text>
+    <path d="M1066 278 l5 5 l10 -12" stroke="#10B981" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <text x="712" y="321">Postmark</text>
+    <path d="M1066 316 l5 5 l10 -12" stroke="#10B981" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <text x="712" y="359">Resend / Svix</text>
+    <path d="M1066 354 l5 5 l10 -12" stroke="#10B981" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <text x="712" y="397">AWS SNS / SES</text>
+    <path d="M1066 392 l5 5 l10 -12" stroke="#10B981" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <text x="712" y="435">GitHub</text>
+    <path d="M1066 430 l5 5 l10 -12" stroke="#10B981" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <line x1="712" y1="456" x2="1088" y2="456" stroke="#27272A" stroke-width="1"/>
+  <text x="712" y="487" font-family="Inter, system-ui, sans-serif" font-size="15" font-weight="500" fill="#71717A">Forged request</text>
+  <path d="M1066 478 l14 14 M1080 478 l-14 14" stroke="#EF4444" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+
+  <!-- Footer pills -->
+  <g font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="500">
+    <rect x="80" y="545" width="92" height="30" rx="15" fill="#18181B" stroke="#27272A"/>
+    <text x="126" y="565" text-anchor="middle" fill="#A1A1AA">PHP 8.4</text>
+
+    <rect x="182" y="545" width="108" height="30" rx="15" fill="#18181B" stroke="#27272A"/>
+    <text x="236" y="565" text-anchor="middle" fill="#A1A1AA">Laravel 13</text>
+
+    <rect x="300" y="545" width="104" height="30" rx="15" fill="#18181B" stroke="#FBBF24"/>
+    <text x="352" y="565" text-anchor="middle" fill="#FBBF24">Security</text>
+
+    <rect x="414" y="545" width="62" height="30" rx="15" fill="#18181B" stroke="#27272A"/>
+    <text x="445" y="565" text-anchor="middle" fill="#A1A1AA">MIT</text>
+  </g>
+
+  <text x="1120" y="595" text-anchor="end" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500" fill="#52525B">@jeffersongoncalves</text>
+</svg>

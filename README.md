@@ -1,76 +1,86 @@
+<div class="filament-hidden">
+
+![Laravel Webhook Signatures](https://raw.githubusercontent.com/jeffersongoncalves/laravel-webhook-signatures/main/art/jeffersongoncalves-laravel-webhook-signatures.png)
+
+</div>
+
 # Laravel Webhook Signatures
 
-Verificação centralizada e *fail-closed* de assinaturas de webhooks dos principais provedores de e-mail e serviços (Mailgun, SendGrid, Postmark, Resend/Svix, AWS SNS/SES e GitHub) para aplicações Laravel.
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/jeffersongoncalves/laravel-webhook-signatures.svg?style=flat-square)](https://packagist.org/packages/jeffersongoncalves/laravel-webhook-signatures)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/jeffersongoncalves/laravel-webhook-signatures/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/jeffersongoncalves/laravel-webhook-signatures/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/jeffersongoncalves/laravel-webhook-signatures.svg?style=flat-square)](https://packagist.org/packages/jeffersongoncalves/laravel-webhook-signatures)
 
-Este pacote nasceu da necessidade de eliminar a lógica de verificação de assinatura **duplicada e com bugs** espalhada por vários pacotes (`laravel-help-desk`, `laravel-service-desk`, `laravel-mail`, `laravel-satis`). Em vez de cada pacote reimplementar — e errar — a mesma verificação, todos passam a depender de uma única fonte de verdade, auditada e testada.
+Centralized, **fail-closed** webhook signature verification for the major email and service providers (Mailgun, SendGrid, Postmark, Resend/Svix, AWS SNS/SES and GitHub) in Laravel applications.
 
-## Princípios de segurança
+This package was born out of the need to eliminate the **duplicated and buggy** signature-verification logic scattered across several packages (`laravel-help-desk`, `laravel-service-desk`, `laravel-mail`, `laravel-satis`). Instead of every package re-implementing — and getting wrong — the same verification, they all depend on a single, audited and tested source of truth.
 
-Todos os verificadores seguem o princípio **fail-closed**:
+## Security principles
 
-- Segredo ausente ou vazio → a verificação **falha** (retorna `false`). Nunca há *fail-open*.
-- Comparações de material secreto usam sempre `hash_equals` (HMAC/basic-auth) ou `openssl_verify` (ECDSA/RSA) — tempo constante, sem vazamento por *timing*.
-- Validação de timestamp (proteção contra *replay*) onde o provedor expõe um timestamp assinado.
-- Qualquer cabeçalho, campo ou certificado ausente/malformado resulta em rejeição.
+Every verifier follows the **fail-closed** principle:
 
-## Compatibilidade
+- Missing or empty secret → verification **fails** (returns `false`). There is never a fail-open path.
+- Secret material is always compared with `hash_equals` (HMAC/basic-auth) or `openssl_verify` (ECDSA/RSA) — constant time, no timing leaks.
+- Timestamp validation (replay protection) wherever the provider exposes a signed timestamp.
+- Any missing or malformed header, field or certificate results in rejection.
 
-| Item                | Versões suportadas        |
-|---------------------|---------------------------|
-| PHP                 | 8.2, 8.3, 8.4             |
-| Laravel             | 11.x, 12.x, 13.x          |
-| Orchestra Testbench | 9.x, 10.x, 11.x           |
-| Extensão obrigatória | `ext-openssl`            |
+## Compatibility
 
-## Instalação
+| Item                 | Supported versions |
+|----------------------|--------------------|
+| PHP                  | 8.2, 8.3, 8.4      |
+| Laravel              | 11.x, 12.x, 13.x   |
+| Orchestra Testbench  | 9.x, 10.x, 11.x    |
+| Required extension   | `ext-openssl`      |
+
+## Installation
 
 ```bash
 composer require jeffersongoncalves/laravel-webhook-signatures
 ```
 
-Publique o arquivo de configuração (opcional):
+Publish the configuration file (optional):
 
 ```bash
 php artisan vendor:publish --tag="webhook-signatures-config"
 ```
 
-## Configuração
+## Configuration
 
-O significado do "segredo" varia por provedor. Defina os valores via `.env`:
+The meaning of the "secret" varies per provider. Define the values via `.env`:
 
 ```dotenv
-WEBHOOK_MAILGUN_SIGNING_KEY=...          # chave de assinatura do Mailgun
-WEBHOOK_SENDGRID_VERIFICATION_KEY=...    # chave de verificação ECDSA do SendGrid
-WEBHOOK_POSTMARK_BASIC_AUTH=usuario:senha # credenciais Basic Auth do Postmark
-WEBHOOK_RESEND_SECRET=whsec_...          # segredo Svix do Resend
-WEBHOOK_SNS_TOPIC_ARN=arn:aws:sns:...    # TopicArn esperado (SES via SNS)
-GITHUB_WEBHOOK_SECRET=...                 # segredo do webhook do GitHub (HMAC-SHA256)
+WEBHOOK_MAILGUN_SIGNING_KEY=...           # Mailgun signing key
+WEBHOOK_SENDGRID_VERIFICATION_KEY=...     # SendGrid ECDSA verification key
+WEBHOOK_POSTMARK_BASIC_AUTH=user:password # Postmark Basic Auth credentials
+WEBHOOK_RESEND_SECRET=whsec_...           # Resend Svix secret
+WEBHOOK_SNS_TOPIC_ARN=arn:aws:sns:...     # expected TopicArn (SES via SNS)
+GITHUB_WEBHOOK_SECRET=...                  # GitHub webhook secret (HMAC-SHA256)
 ```
 
-| Provedor   | Esquema                                                | Significado do segredo                          |
-|------------|--------------------------------------------------------|-------------------------------------------------|
-| `mailgun`  | HMAC-SHA256 sobre `timestamp + token`                  | chave de assinatura do webhook                  |
-| `sendgrid` | ECDSA (P-256/SHA-256) sobre `timestamp + corpo`, headers Twilio | chave de verificação ECDSA (PEM ou base64 DER) |
-| `postmark` | Basic Auth (`hash_equals`)                             | credenciais no formato `usuario:senha`          |
-| `resend`   | HMAC-SHA256 base64 sobre `id.timestamp.payload`, headers `svix-*` | segredo Svix (com ou sem prefixo `whsec_`) |
-| `sns`      | Certificado X.509 + `openssl_verify` sobre string canônica | TopicArn esperado (mensagem fixada ao tópico) |
-| `github`   | HMAC-SHA256 sobre o corpo bruto, header `X-Hub-Signature-256` (`sha256=<hex>`); fallback legado `X-Hub-Signature` (sha1) | segredo do webhook do GitHub |
+| Provider   | Scheme                                                                | Secret meaning                                  |
+|------------|----------------------------------------------------------------------|-------------------------------------------------|
+| `mailgun`  | HMAC-SHA256 over `timestamp + token`                                  | webhook signing key                             |
+| `sendgrid` | ECDSA (P-256/SHA-256) over `timestamp + body`, Twilio headers         | ECDSA verification key (PEM or base64 DER)      |
+| `postmark` | Basic Auth (`hash_equals`)                                            | credentials in `user:password` format           |
+| `resend`   | HMAC-SHA256 base64 over `id.timestamp.payload`, `svix-*` headers      | Svix secret (with or without `whsec_` prefix)   |
+| `sns`      | X.509 certificate + `openssl_verify` over canonical string           | expected TopicArn (message pinned to the topic) |
+| `github`   | HMAC-SHA256 over raw body, `X-Hub-Signature-256` header (`sha256=<hex>`); legacy `X-Hub-Signature` (sha1) fallback | GitHub webhook secret |
 
-A tolerância de timestamp (em segundos) é configurável:
+The timestamp tolerance (in seconds) is configurable:
 
 ```php
 // config/webhook-signatures.php
 'tolerance' => [
     'default' => 300,   // Mailgun, Resend, SendGrid
-    'sns'     => 3600,  // SNS pode reentregar mensagens mais tarde
+    'sns'     => 3600,  // SNS may redeliver messages later
 ],
 ```
 
-## Uso
+## Usage
 
-### 1. Middleware (forma recomendada)
+### 1. Middleware (recommended)
 
-O pacote registra o alias de middleware `webhook.signature`, parametrizado pelo provedor. Ele aborta com `403` quando a assinatura não pode ser verificada:
+The package registers the `webhook.signature` middleware alias, parameterized by provider. It aborts with `403` when the signature cannot be verified:
 
 ```php
 use Illuminate\Support\Facades\Route;
@@ -82,9 +92,9 @@ Route::post('/webhooks/resend', ResendController::class)
     ->middleware('webhook.signature:resend');
 ```
 
-O segredo é lido automaticamente de `config('webhook-signatures.providers.{provedor}.secret')`.
+The secret is read automatically from `config('webhook-signatures.providers.{provider}.secret')`.
 
-### 2. Uso direto via Facade
+### 2. Direct usage via Facade
 
 ```php
 use JeffersonGoncalves\WebhookSignatures\Facades\WebhookSignatures;
@@ -95,48 +105,48 @@ public function handle(Request $request)
         abort(403);
     }
 
-    // ... processa o evento
+    // ... process the event
 }
 ```
 
-Você também pode passar o segredo explicitamente (ignorando a config):
+You can also pass the secret explicitly (bypassing the config):
 
 ```php
-WebhookSignatures::verify('mailgun', $request, $minhaChave);
+WebhookSignatures::verify('mailgun', $request, $myKey);
 ```
 
-### 3. Uso de um verificador isolado
+### 3. Using a standalone verifier
 
-Cada verificador implementa a interface `SignatureVerifier`:
+Each verifier implements the `SignatureVerifier` interface:
 
 ```php
 use JeffersonGoncalves\WebhookSignatures\Verifiers\ResendSignatureVerifier;
 
 $verifier = new ResendSignatureVerifier(tolerance: 300);
 
-$valido = $verifier->verify($request, $segredo); // bool
+$valid = $verifier->verify($request, $secret); // bool
 ```
 
-### 4. Registrando um verificador customizado
+### 4. Registering a custom verifier
 
 ```php
 use JeffersonGoncalves\WebhookSignatures\Facades\WebhookSignatures;
 
-WebhookSignatures::extend('meu-provedor', MeuVerifier::class);
+WebhookSignatures::extend('my-provider', MyVerifier::class);
 ```
 
-`MeuVerifier` deve implementar `JeffersonGoncalves\WebhookSignatures\Contracts\SignatureVerifier` e aceitar `int $tolerance` no construtor.
+`MyVerifier` must implement `JeffersonGoncalves\WebhookSignatures\Contracts\SignatureVerifier` and accept `int $tolerance` in the constructor.
 
-## O que cada verificador faz
+## What each verifier does
 
-- **Mailgun** — calcula `hash_hmac('sha256', timestamp.token, $chave)` e compara com a assinatura recebida via `hash_equals`. Aceita os campos no nível superior (rotas inbound) ou aninhados em `signature` (event webhooks). Rejeita timestamps fora da janela de tolerância.
-- **SendGrid** — verifica a assinatura ECDSA (P-256/SHA-256) sobre `timestamp + corpo bruto`, lendo os cabeçalhos `X-Twilio-Email-Event-Webhook-Signature` e `-Timestamp`. Normaliza a chave de verificação (PEM ou base64 DER) e usa `openssl_verify`.
-- **Postmark** — o Postmark não assina o payload; a autenticação é por Basic Auth. Compara usuário e senha em tempo constante (`hash_equals`).
-- **Resend (Svix)** — reconstrói `id.timestamp.payload`, calcula HMAC-SHA256 com a chave decodificada (prefixo `whsec_` removido), faz base64 e compara contra cada par `versão,assinatura` do cabeçalho `svix-signature`. Rejeita timestamps fora da tolerância.
-- **GitHub** — calcula `hash_hmac('sha256', corpo bruto, $segredo)` e compara, via `hash_equals`, contra o cabeçalho `X-Hub-Signature-256` (formato `sha256=<hex>`). Como fallback, aceita o cabeçalho legado `X-Hub-Signature` (`sha1=<hex>`), mas sempre prioriza o SHA-256. Cabeçalho ausente ou malformado resulta em rejeição.
-- **AWS SNS/SES** — fixa a mensagem ao `TopicArn` esperado, valida que o `SigningCertURL` aponta para um host legítimo da AWS (`sns.<região>.amazonaws.com`), reconstrói a string canônica documentada pela SNS, baixa o certificado X.509 e verifica a assinatura com `openssl_verify` (SHA1 para `SignatureVersion 1`, SHA256 para `2`). Rejeita mensagens muito antigas.
+- **Mailgun** — computes `hash_hmac('sha256', timestamp.token, $key)` and compares it with the received signature via `hash_equals`. Accepts the fields at the top level (inbound routes) or nested under `signature` (event webhooks). Rejects timestamps outside the tolerance window.
+- **SendGrid** — verifies the ECDSA signature (P-256/SHA-256) over `timestamp + raw body`, reading the `X-Twilio-Email-Event-Webhook-Signature` and `-Timestamp` headers. Normalizes the verification key (PEM or base64 DER) and uses `openssl_verify`.
+- **Postmark** — Postmark does not sign the payload; authentication is via Basic Auth. Compares user and password in constant time (`hash_equals`).
+- **Resend (Svix)** — reconstructs `id.timestamp.payload`, computes HMAC-SHA256 with the decoded key (`whsec_` prefix stripped), base64-encodes it and compares against each `version,signature` pair from the `svix-signature` header. Rejects timestamps outside the tolerance.
+- **GitHub** — computes `hash_hmac('sha256', raw body, $secret)` and compares it, via `hash_equals`, against the `X-Hub-Signature-256` header (`sha256=<hex>` format). As a fallback it accepts the legacy `X-Hub-Signature` header (`sha1=<hex>`), but always prioritizes SHA-256. A missing or malformed header results in rejection.
+- **AWS SNS/SES** — pins the message to the expected `TopicArn`, validates that the `SigningCertURL` points to a legitimate AWS host (`sns.<region>.amazonaws.com`), reconstructs the canonical string documented by SNS, downloads the X.509 certificate and verifies the signature with `openssl_verify` (SHA1 for `SignatureVersion 1`, SHA256 for `2`). Rejects messages that are too old.
 
-## Testes
+## Testing
 
 ```bash
 composer test       # Pest
@@ -144,35 +154,31 @@ composer analyse    # PHPStan (level 5, Larastan)
 composer format     # Laravel Pint
 ```
 
-Cada verificador tem testes cobrindo: assinatura válida aceita, assinatura inválida rejeitada, requisição sem credenciais rejeitada e (onde aplicável) timestamp antigo rejeitado. Todas as chaves e *fixtures* criptográficas são geradas dentro dos testes.
+Each verifier has tests covering: valid signature accepted, invalid signature rejected, request without credentials rejected and (where applicable) old timestamp rejected. All cryptographic keys and fixtures are generated inside the tests.
 
-## Migração (pacotes consumidores)
+## Migration (consumer packages)
 
-> Esta seção é **apenas documental**. Os pacotes consumidores não são alterados por este pacote — eles só poderão depender dele após a publicação no Packagist.
-
-Hoje a verificação está duplicada (e divergente) em:
+This package consolidates signature verification that used to be duplicated (and divergent) across:
 
 - `laravel-help-desk` → `src/Http/Middleware/Verify{Mailgun,SendGrid,Postmark,Resend}Signature.php`
 - `laravel-service-desk` → `src/Http/Middleware/Verify{Mailgun,SendGrid,Postmark,Resend}Signature.php`
-- `laravel-mail` → `src/Webhooks/{Mailgun,SendGrid,Ses,...}WebhookHandler::validate()`
-- `laravel-satis` → verificação de webhook própria
+- `laravel-mail` → `src/Webhooks/{SendGrid,Ses,...}WebhookHandler::validate()`
+- `laravel-satis` → its own GitHub webhook verification
 
-Problemas reais encontrados na duplicação:
+Real problems found in the duplication:
 
-- **Fail-open**: o `help-desk` retornava `$next($request)` quando a chave não estava configurada — ou seja, aceitava qualquer requisição. Aqui o comportamento é sempre *fail-closed*.
-- **Comparação não constante**: o `service-desk` (SendGrid/Postmark) usava `!==` em vez de `hash_equals`, expondo a *timing attacks*.
-- **Sem proteção contra replay**: parte das implementações de Mailgun não validava a recência do timestamp.
+- **Fail-open**: `help-desk` returned `$next($request)` when the key was not configured — i.e. it accepted any request. Here the behavior is always fail-closed.
+- **Non-constant comparison**: `service-desk` (SendGrid/Postmark) used `!==` instead of `hash_equals`, exposing it to timing attacks.
+- **No replay protection**: some Mailgun implementations did not validate timestamp recency.
 
-Plano de migração sugerido (a executar em cada pacote, separadamente):
+Suggested migration steps (to apply per package):
 
-1. Adicionar `jeffersongoncalves/laravel-webhook-signatures` ao `composer.json` do pacote.
-2. Substituir os middlewares próprios pelo alias `webhook.signature:{provedor}`, **ou** chamar `WebhookSignatures::verify(...)` dentro do handler existente.
-3. Mapear os segredos atuais (ex.: `help-desk.email.inbound.mailgun.signing_key`) para `config('webhook-signatures.providers.mailgun.secret')` — ou passar o segredo explicitamente como terceiro argumento de `verify()`, preservando a config do pacote.
-4. Remover os arquivos `Verify*Signature.php` duplicados e seus testes redundantes.
-5. Rodar a suíte de testes do pacote consumidor.
+1. Add `jeffersongoncalves/laravel-webhook-signatures` to the package `composer.json`.
+2. Replace the package's own middlewares with the `webhook.signature:{provider}` alias, **or** call `WebhookSignatures::verify(...)` inside the existing handler.
+3. Map the current secrets (e.g. `help-desk.email.inbound.mailgun.signing_key`) to `config('webhook-signatures.providers.mailgun.secret')` — or pass the secret explicitly as the third argument of `verify()`, preserving the package config.
+4. Remove the duplicated `Verify*Signature.php` files and their redundant tests.
+5. Run the consumer package test suite.
 
-Nenhum desses passos é realizado automaticamente — eles ficam documentados aqui para serem aplicados quando o pacote estiver publicado.
+## License
 
-## Licença
-
-MIT. Veja [LICENSE.md](LICENSE.md).
+MIT. See [LICENSE.md](LICENSE.md).
