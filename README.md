@@ -8,6 +8,7 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/jeffersongoncalves/laravel-webhook-signatures.svg?style=flat-square)](https://packagist.org/packages/jeffersongoncalves/laravel-webhook-signatures)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/jeffersongoncalves/laravel-webhook-signatures/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/jeffersongoncalves/laravel-webhook-signatures/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/jeffersongoncalves/laravel-webhook-signatures/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/jeffersongoncalves/laravel-webhook-signatures/actions?query=workflow%3A%22Fix+PHP+code+style+issues%22+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/jeffersongoncalves/laravel-webhook-signatures.svg?style=flat-square)](https://packagist.org/packages/jeffersongoncalves/laravel-webhook-signatures)
 
 Centralized, **fail-closed** webhook signature verification for the major email and service providers (Mailgun, SendGrid, Postmark, Resend/Svix, AWS SNS/SES and GitHub) in Laravel applications.
