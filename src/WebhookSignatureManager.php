@@ -5,6 +5,7 @@ namespace JeffersonGoncalves\WebhookSignatures;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 use JeffersonGoncalves\WebhookSignatures\Contracts\SignatureVerifier;
+use JeffersonGoncalves\WebhookSignatures\Verifiers\GithubSignatureVerifier;
 use JeffersonGoncalves\WebhookSignatures\Verifiers\MailgunSignatureVerifier;
 use JeffersonGoncalves\WebhookSignatures\Verifiers\PostmarkSignatureVerifier;
 use JeffersonGoncalves\WebhookSignatures\Verifiers\ResendSignatureVerifier;
@@ -22,6 +23,7 @@ class WebhookSignatureManager
         'postmark' => PostmarkSignatureVerifier::class,
         'resend' => ResendSignatureVerifier::class,
         'sns' => SnsSignatureVerifier::class,
+        'github' => GithubSignatureVerifier::class,
     ];
 
     /**

@@ -1,6 +1,6 @@
 # Laravel Webhook Signatures
 
-Verificação centralizada e *fail-closed* de assinaturas de webhooks dos principais provedores de e-mail e serviços (Mailgun, SendGrid, Postmark, Resend/Svix e AWS SNS/SES) para aplicações Laravel.
+Verificação centralizada e *fail-closed* de assinaturas de webhooks dos principais provedores de e-mail e serviços (Mailgun, SendGrid, Postmark, Resend/Svix, AWS SNS/SES e GitHub) para aplicações Laravel.
 
 Este pacote nasceu da necessidade de eliminar a lógica de verificação de assinatura **duplicada e com bugs** espalhada por vários pacotes (`laravel-help-desk`, `laravel-service-desk`, `laravel-mail`, `laravel-satis`). Em vez de cada pacote reimplementar — e errar — a mesma verificação, todos passam a depender de uma única fonte de verdade, auditada e testada.
 
@@ -44,6 +44,7 @@ WEBHOOK_SENDGRID_VERIFICATION_KEY=...    # chave de verificação ECDSA do SendG
 WEBHOOK_POSTMARK_BASIC_AUTH=usuario:senha # credenciais Basic Auth do Postmark
 WEBHOOK_RESEND_SECRET=whsec_...          # segredo Svix do Resend
 WEBHOOK_SNS_TOPIC_ARN=arn:aws:sns:...    # TopicArn esperado (SES via SNS)
+GITHUB_WEBHOOK_SECRET=...                 # segredo do webhook do GitHub (HMAC-SHA256)
 ```
 
 | Provedor   | Esquema                                                | Significado do segredo                          |
@@ -53,6 +54,7 @@ WEBHOOK_SNS_TOPIC_ARN=arn:aws:sns:...    # TopicArn esperado (SES via SNS)
 | `postmark` | Basic Auth (`hash_equals`)                             | credenciais no formato `usuario:senha`          |
 | `resend`   | HMAC-SHA256 base64 sobre `id.timestamp.payload`, headers `svix-*` | segredo Svix (com ou sem prefixo `whsec_`) |
 | `sns`      | Certificado X.509 + `openssl_verify` sobre string canônica | TopicArn esperado (mensagem fixada ao tópico) |
+| `github`   | HMAC-SHA256 sobre o corpo bruto, header `X-Hub-Signature-256` (`sha256=<hex>`); fallback legado `X-Hub-Signature` (sha1) | segredo do webhook do GitHub |
 
 A tolerância de timestamp (em segundos) é configurável:
 
@@ -131,6 +133,7 @@ WebhookSignatures::extend('meu-provedor', MeuVerifier::class);
 - **SendGrid** — verifica a assinatura ECDSA (P-256/SHA-256) sobre `timestamp + corpo bruto`, lendo os cabeçalhos `X-Twilio-Email-Event-Webhook-Signature` e `-Timestamp`. Normaliza a chave de verificação (PEM ou base64 DER) e usa `openssl_verify`.
 - **Postmark** — o Postmark não assina o payload; a autenticação é por Basic Auth. Compara usuário e senha em tempo constante (`hash_equals`).
 - **Resend (Svix)** — reconstrói `id.timestamp.payload`, calcula HMAC-SHA256 com a chave decodificada (prefixo `whsec_` removido), faz base64 e compara contra cada par `versão,assinatura` do cabeçalho `svix-signature`. Rejeita timestamps fora da tolerância.
+- **GitHub** — calcula `hash_hmac('sha256', corpo bruto, $segredo)` e compara, via `hash_equals`, contra o cabeçalho `X-Hub-Signature-256` (formato `sha256=<hex>`). Como fallback, aceita o cabeçalho legado `X-Hub-Signature` (`sha1=<hex>`), mas sempre prioriza o SHA-256. Cabeçalho ausente ou malformado resulta em rejeição.
 - **AWS SNS/SES** — fixa a mensagem ao `TopicArn` esperado, valida que o `SigningCertURL` aponta para um host legítimo da AWS (`sns.<região>.amazonaws.com`), reconstrói a string canônica documentada pela SNS, baixa o certificado X.509 e verifica a assinatura com `openssl_verify` (SHA1 para `SignatureVersion 1`, SHA256 para `2`). Rejeita mensagens muito antigas.
 
 ## Testes

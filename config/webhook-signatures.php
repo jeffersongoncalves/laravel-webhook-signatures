@@ -31,6 +31,7 @@ return [
     |  - postmark: credenciais Basic Auth no formato "usuario:senha".
     |  - resend:   segredo de assinatura Svix (com ou sem o prefixo "whsec_").
     |  - sns:      TopicArn esperado (a mensagem é fixada a este tópico).
+    |  - github:   segredo do webhook (HMAC-SHA256 sobre o corpo bruto).
     |
     | Um segredo vazio faz a verificação FALHAR (fail-closed): a requisição é
     | sempre rejeitada quando não há segredo configurado.
@@ -57,6 +58,10 @@ return [
 
         'sns' => [
             'secret' => env('WEBHOOK_SNS_TOPIC_ARN'),
+        ],
+
+        'github' => [
+            'secret' => env('GITHUB_WEBHOOK_SECRET'),
         ],
 
     ],
