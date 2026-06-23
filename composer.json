@@ -1,0 +1,75 @@
+{
+    "name": "jeffersongoncalves/laravel-webhook-signatures",
+    "description": "Verificação centralizada e fail-closed de assinaturas de webhooks de provedores de email/serviços (Mailgun, SendGrid, Postmark, Resend e AWS SNS/SES) para aplicações Laravel.",
+    "keywords": [
+        "jeffersongoncalves",
+        "laravel",
+        "laravel-webhook-signatures",
+        "webhook",
+        "signature",
+        "mailgun",
+        "sendgrid",
+        "postmark",
+        "resend",
+        "sns"
+    ],
+    "homepage": "https://github.com/jeffersongoncalves/laravel-webhook-signatures",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jefferson Gonçalves",
+            "email": "gerson.simao.92@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2|^8.3|^8.4",
+        "ext-openssl": "*",
+        "illuminate/contracts": "^11.0|^12.0|^13.0",
+        "illuminate/http": "^11.0|^12.0|^13.0",
+        "illuminate/support": "^11.0|^12.0|^13.0",
+        "spatie/laravel-package-tools": "^1.14.0"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.0",
+        "laravel/pint": "^1.24",
+        "orchestra/testbench": "^9.0|^10.0|^11.0",
+        "pestphp/pest": "^3.7.4|^4.0",
+        "pestphp/pest-plugin-laravel": "^3.0|^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "JeffersonGoncalves\\WebhookSignatures\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JeffersonGoncalves\\WebhookSignatures\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "JeffersonGoncalves\\WebhookSignatures\\WebhookSignaturesServiceProvider"
+            ],
+            "aliases": {
+                "WebhookSignatures": "JeffersonGoncalves\\WebhookSignatures\\Facades\\WebhookSignatures"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
