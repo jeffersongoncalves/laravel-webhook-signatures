@@ -182,6 +182,23 @@ Suggested migration steps (to apply per package):
 4. Remove the duplicated `Verify*Signature.php` files and their redundant tests.
 5. Run the consumer package test suite.
 
+## Changelog
+
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+
+## Contributing
+
+Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
+
+## Security Vulnerabilities
+
+Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
+
+## Credits
+
+- [Jefferson Gonçalves](https://github.com/jeffersongoncalves)
+- [All Contributors](../../contributors)
+
 ## License
 
 MIT. See [LICENSE.md](LICENSE.md).
