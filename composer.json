@@ -1,6 +1,6 @@
 {
     "name": "jeffersongoncalves/laravel-webhook-signatures",
-    "description": "Verificação centralizada e fail-closed de assinaturas de webhooks de provedores de email/serviços (Mailgun, SendGrid, Postmark, Resend e AWS SNS/SES) para aplicações Laravel.",
+    "description": "Centralized, fail-closed webhook signature verification for Laravel: Mailgun, SendGrid, Postmark, Resend/Svix, AWS SNS/SES and GitHub.",
     "keywords": [
         "jeffersongoncalves",
         "laravel",
